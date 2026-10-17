@@ -75,6 +75,8 @@ button {
 }
 
 .page {
+  position: relative;
+  z-index: 1; /* always above the chip-rain canvas */
   max-width: 720px;
   margin: 0 auto;
   padding: 0 16px 140px;
@@ -878,6 +880,8 @@ button {
   z-index: 0;
   width: 100%;
   height: 100%;
+  /* Purely decorative: taps are read on window, so never let the canvas swallow them. */
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
