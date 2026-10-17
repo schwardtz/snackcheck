@@ -77,7 +77,7 @@ export default function App() {
       {route.name === 'home' ? <Home onOpenSettings={() => setSettingsOpen(true)} /> : <SnackDetail key={route.id} id={route.id} />}
       <PromptBar focusSnackId={route.name === 'snack' ? route.id : undefined} onResult={onResult} onError={onError} />
       <Toast toast={toast} onClose={() => setToast(null)} />
-      <AnimatePresence>{settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}</AnimatePresence>
+      <AnimatePresence>{settingsOpen && <Settings onClose={() => setSettingsOpen(false)} onMessage={showToast} />}</AnimatePresence>
     </>
   )
 }

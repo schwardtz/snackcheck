@@ -727,3 +727,7 @@ button {
     transition: none !important;
   }
 }
+
+.sheet .pill.wide {
+  margin-top: 22px;
+}
