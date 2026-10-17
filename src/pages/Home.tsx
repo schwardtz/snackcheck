@@ -6,9 +6,11 @@ import { filterSnacks, type Filters } from '../search'
 import { SearchBar } from '../components/SearchBar'
 import { SnackCard } from '../components/SnackCard'
 import { Hero } from '../fx/Hero'
+import { useInstallPrompt } from '../useInstallPrompt'
 
 export function Home({ onOpenSettings }: { onOpenSettings: () => void }) {
   const snacks = useLiveQuery(() => db.snacks.toArray(), [])
+  const install = useInstallPrompt()
   const [filters, setFilters] = useState<Filters>({ query: '', category: null, tags: [], sort: 'rating' })
 
   const tags = useMemo(() => {
@@ -21,7 +23,7 @@ export function Home({ onOpenSettings }: { onOpenSettings: () => void }) {
 
   return (
     <div className="page home">
-      <Hero count={snacks?.length ?? 0} onOpenSettings={onOpenSettings} />
+      <Hero count={snacks?.length ?? 0} onOpenSettings={onOpenSettings} installAction={install} />
       <div className="sticky-search">
         <SearchBar filters={filters} onChange={setFilters} availableTags={tags} />
       </div>

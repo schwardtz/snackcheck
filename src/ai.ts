@@ -1,27 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { CATEGORIES, TASTE_TAGS, db, type Snack } from './db'
 import { blobToDataUrl } from './image'
+import { getApiKey } from './apiKey'
 
 const MODEL = 'claude-opus-5-5'
-const KEY_STORAGE = 'snackcheck:apiKey'
-
-export function getApiKey(): string {
-  try {
-    return localStorage.getItem(KEY_STORAGE) ?? ''
-  } catch {
-    return ''
-  }
-}
-
-export function setApiKey(key: string) {
-  try {
-    if (key) localStorage.setItem(KEY_STORAGE, key.trim())
-    else localStorage.removeItem(KEY_STORAGE)
-  } catch {
-    /* storage blocked: key only lives for this session */
-  }
-}
-
 const snackFields = {
   name: { type: 'string', description: 'Product name, e.g. "Paprika Chips"' },
   brand: { type: 'string', description: 'Brand / maker, empty string if unknown' },
@@ -231,11 +213,6 @@ export async function runPrompt(
   }
 
   return { reply: reply || 'Done! 🍿', changes }
-}
-
-/** Put a deleted snack back (used by the undo toast). */
-export async function restoreSnack(snack: Snack) {
-  await db.snacks.put(snack)
 }
 
 export function describeError(e: unknown): string {

@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
-import { getApiKey, restoreSnack, type PromptResult } from './ai'
+import type { PromptResult } from './ai'
+import { getApiKey } from './apiKey'
 import { db, seedIfFirstRun } from './db'
 import { useRoute, navigate } from './router'
 import { Home } from './pages/Home'
@@ -41,7 +42,7 @@ export default function App() {
       const added = changes.find((c) => c.kind === 'added')
       if (deleted.length) {
         if (route.name === 'snack' && deleted.some((c) => c.snack.id === route.id)) navigate('/')
-        showToast(reply, { label: 'Undo', run: () => deleted.forEach((c) => restoreSnack(c.snack)) })
+        showToast(reply, { label: 'Undo', run: () => deleted.forEach((c) => db.snacks.put(c.snack)) })
       } else {
         showToast(reply)
       }

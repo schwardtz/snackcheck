@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import { getApiKey, setApiKey } from '../ai'
+import { getApiKey, setApiKey } from '../apiKey'
 
 export function Settings({ onClose }: { onClose: () => void }) {
   const [key, setKey] = useState(getApiKey)

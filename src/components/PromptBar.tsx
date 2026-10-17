@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { describeError, runPrompt, type PromptResult } from '../ai'
+import type { PromptResult } from '../ai'
 import { processPhoto } from '../image'
 import { useBlobUrl } from '../useBlobUrl'
 
@@ -69,13 +69,15 @@ export function PromptBar({ focusSnackId, onResult, onError }: Props) {
     if (!msg || busy) return
     setBusy(true)
     navigator.vibrate?.(15)
+    // The SDK is loaded on first send so the wall paints fast.
+    const ai = await import('../ai')
     try {
-      const result = await runPrompt(msg, photo, focusSnackId)
+      const result = await ai.runPrompt(msg, photo, focusSnackId)
       setText('')
       setPhoto(undefined)
       onResult(result)
     } catch (e) {
-      onError(describeError(e))
+      onError(ai.describeError(e))
     } finally {
       setBusy(false)
     }
