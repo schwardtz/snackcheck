@@ -40,10 +40,11 @@ function Layer({ depth, items, scrollY, tiltX, tiltY }: {
 interface Props {
   count: number
   onOpenSettings: () => void
+  onOpenBrands: () => void
   installAction?: () => void
 }
 
-export function Hero({ count, onOpenSettings, installAction }: Props) {
+export function Hero({ count, onOpenSettings, onOpenBrands, installAction }: Props) {
   const { scrollY } = useScroll()
   const tilt = useTilt()
   // Logo sinks slower than the page and squashes a little: classic parallax.
@@ -68,6 +69,7 @@ export function Hero({ count, onOpenSettings, installAction }: Props) {
           📲 Install
         </motion.button>
       )}
+      <button className="brands-btn" aria-label="Brands overview" onClick={onOpenBrands}>🏷️</button>
       <button className="settings-btn" aria-label="Settings" onClick={onOpenSettings}>⚙️</button>
       <motion.div style={{ y: logoY, scale: logoScale, rotate: logoRotate, opacity: logoOpacity, position: 'relative' }}>
         <motion.h1

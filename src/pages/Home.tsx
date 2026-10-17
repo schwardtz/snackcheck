@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useRef } from 'react'
 import { db } from '../db'
 import { navigate } from '../router'
-import { filterSnacks, type Filters } from '../search'
+import { brandKey, filterSnacks, type Filters } from '../search'
 import { SearchBar } from '../components/SearchBar'
 import { SnackCard } from '../components/SnackCard'
 import { Hero } from '../fx/Hero'
@@ -48,13 +48,23 @@ export function Home({ filters, onFiltersChange, onOpenSettings }: Props) {
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c)
   }, [snacks])
 
+  const brandLabel = useMemo(
+    () => snacks?.find((s) => filters.brand && brandKey(s.brand) === filters.brand)?.brand?.trim(),
+    [snacks, filters.brand],
+  )
+
   const list = useMemo(() => (snacks ? filterSnacks(snacks, filters) : []), [snacks, filters])
 
   return (
     <div className="page home">
-      <Hero count={snacks?.length ?? 0} onOpenSettings={onOpenSettings} installAction={install} />
+      <Hero
+        count={snacks?.length ?? 0}
+        onOpenSettings={onOpenSettings}
+        onOpenBrands={() => navigate('/brands')}
+        installAction={install}
+      />
       <div className="sticky-search">
-        <SearchBar filters={filters} onChange={onFiltersChange} availableTags={tags} availableCountries={countries} />
+        <SearchBar filters={filters} onChange={onFiltersChange} availableTags={tags} availableCountries={countries} brandLabel={brandLabel} />
       </div>
       {snacks && snacks.length === 0 && (
         <div className="empty">

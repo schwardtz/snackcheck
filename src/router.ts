@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 export type Route =
   | { name: 'home' }
   | { name: 'new' }
+  | { name: 'brands' }
   | { name: 'snack'; id: number }
   | { name: 'edit'; id: number }
 
 function parse(hash: string): Route {
   if (hash.startsWith('#/new')) return { name: 'new' }
+  if (hash.startsWith('#/brands')) return { name: 'brands' }
   const m = hash.match(/^#\/snack\/(\d+)(\/edit)?/)
   if (!m) return { name: 'home' }
   return m[2] ? { name: 'edit', id: Number(m[1]) } : { name: 'snack', id: Number(m[1]) }

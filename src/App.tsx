@@ -1,11 +1,12 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
 import { db, requestPersistentStorage, seedIfFirstRun } from './db'
-import type { Filters } from './search'
-import { useRoute, navigate } from './router'
+import { EMPTY_FILTERS, type Filters } from './search'
+import { useRoute, navigate, back } from './router'
 import { Home } from './pages/Home'
 import { SnackDetail } from './pages/SnackDetail'
 import { EditSnack } from './pages/EditSnack'
+import { Brands } from './pages/Brands'
 import { Settings } from './components/Settings'
 import { Toast, type ToastData } from './components/Toast'
 import { ChipRain } from './fx/ChipRain'
@@ -17,7 +18,7 @@ export default function App() {
   const [toast, setToast] = useState<ToastData | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   // Lives here so search and filters survive a trip to a snack and back.
-  const [filters, setFilters] = useState<Filters>({ query: '', category: null, country: null, tags: [], sort: 'rating' })
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
 
   useEffect(() => {
     seedIfFirstRun()
@@ -54,6 +55,14 @@ export default function App() {
       <ChipRain />
       {route.name === 'home' && (
         <Home filters={filters} onFiltersChange={setFilters} onOpenSettings={() => setSettingsOpen(true)} />
+      )}
+      {route.name === 'brands' && (
+        <Brands
+          onPickBrand={(brand) => {
+            setFilters({ ...EMPTY_FILTERS, sort: filters.sort, brand })
+            back('/')
+          }}
+        />
       )}
       {route.name === 'snack' && <SnackDetail key={route.id} id={route.id} />}
       {route.name === 'new' && <EditSnack key="new" onMessage={showToast} />}

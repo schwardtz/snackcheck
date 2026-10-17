@@ -154,6 +154,7 @@ button {
 }
 
 .settings-btn,
+.brands-btn,
 .install-btn {
   position: absolute;
   top: max(14px, env(safe-area-inset-top));
@@ -169,6 +170,14 @@ button {
 .settings-btn {
   right: 0;
   width: 42px;
+}
+
+.brands-btn {
+  right: 52px;
+  width: 42px;
+  border-color: var(--pink);
+  background: rgba(255, 43, 214, 0.08);
+  box-shadow: var(--glow-pink);
 }
 
 .install-btn {
@@ -563,6 +572,77 @@ button {
   gap: 16px;
   text-align: center;
   font-size: 20px;
+}
+
+/* ---------- Brands overview ---------- */
+.brands {
+  padding-top: max(14px, env(safe-area-inset-top));
+}
+.brand-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.brand-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, var(--pink), var(--cyan)) border-box;
+  text-align: left;
+}
+.brand-card:active {
+  transform: scale(0.98);
+}
+.brand-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.brand-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+}
+.brand-count {
+  flex: 0 0 auto;
+  color: var(--cyan);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.brand-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.brand-avg {
+  color: var(--acid);
+  text-shadow: var(--glow-acid);
+}
+.brand-buy {
+  color: var(--ink-soft);
+}
+.brand-flags {
+  display: inline-flex;
+  gap: 3px;
+}
+.brand-best {
+  color: var(--ink-soft);
+  font-size: 13px;
 }
 
 /* ---------- Bottom bar & add button ---------- */

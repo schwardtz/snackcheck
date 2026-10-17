@@ -8,14 +8,25 @@ export interface Filters {
   query: string
   category: Category | null
   country: string | null
+  brand: string | null // a brandKey()
+  buyAgain: boolean | null
   tags: string[]
   sort: SortKey
 }
+
+export const EMPTY_FILTERS: Filters = {
+  query: '', category: null, country: null, brand: null, buyAgain: null, tags: [], sort: 'rating',
+}
+
+/** Brands are grouped case- and whitespace-insensitively ("Lay's" = "lay's "). */
+export const brandKey = (brand?: string) => brand?.trim().toLowerCase() ?? ''
 
 export function filterSnacks(snacks: Snack[], f: Filters): Snack[] {
   let list = snacks
   if (f.category) list = list.filter((s) => s.category === f.category)
   if (f.country) list = list.filter((s) => s.country === f.country)
+  if (f.brand) list = list.filter((s) => brandKey(s.brand) === f.brand)
+  if (f.buyAgain != null) list = list.filter((s) => s.wouldBuyAgain === f.buyAgain)
   if (f.tags.length) list = list.filter((s) => f.tags.every((t) => s.tags.includes(t)))
   const q = f.query.trim()
   if (q) {

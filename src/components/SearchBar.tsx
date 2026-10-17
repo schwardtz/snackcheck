@@ -13,12 +13,14 @@ interface Props {
   onChange: (f: Filters) => void
   availableTags: string[]
   availableCountries: string[]
+  brandLabel?: string // display name of the active brand filter
 }
 
-export function SearchBar({ filters, onChange, availableTags, availableCountries }: Props) {
+export function SearchBar({ filters, onChange, availableTags, availableCountries, brandLabel }: Props) {
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch })
   const toggleCat = (c: Category) => set({ category: filters.category === c ? null : c })
   const toggleCountry = (c: string) => set({ country: filters.country === c ? null : c })
+  const toggleBuyAgain = (v: boolean) => set({ buyAgain: filters.buyAgain === v ? null : v })
   const toggleTag = (t: string) =>
     set({ tags: filters.tags.includes(t) ? filters.tags.filter((x) => x !== t) : [...filters.tags, t] })
 
@@ -47,20 +49,32 @@ export function SearchBar({ filters, onChange, availableTags, availableCountries
           </button>
         ))}
       </div>
-      {availableCountries.length > 0 && (
-        <div className="chip-row" aria-label="Filter by country">
-          {availableCountries.map((c) => (
-            <button
-              key={c}
-              aria-pressed={filters.country === c}
-              className={`pill small ${filters.country === c ? 'on' : ''}`}
-              onClick={() => toggleCountry(c)}
-            >
-              <span aria-hidden>{countryFlag(c)}</span> {countryName(c)}
-            </button>
-          ))}
+      {filters.brand && (
+        <div className="chip-row">
+          <button className="pill on" aria-label={`Remove brand filter ${brandLabel ?? ''}`} onClick={() => set({ brand: null })}>
+            🏷️ {brandLabel ?? filters.brand} ✕
+          </button>
         </div>
       )}
+      <div className="chip-row" aria-label="Filter by buy again and country">
+        <button aria-pressed={filters.buyAgain === true} className={`pill small ${filters.buyAgain === true ? 'on' : ''}`} onClick={() => toggleBuyAgain(true)}>
+          🛒 Buy again
+        </button>
+        <button aria-pressed={filters.buyAgain === false} className={`pill small ${filters.buyAgain === false ? 'on' : ''}`} onClick={() => toggleBuyAgain(false)}>
+          🚫 Not again
+        </button>
+        {availableCountries.length > 0 && <span className="chip-sep" />}
+        {availableCountries.map((c) => (
+          <button
+            key={c}
+            aria-pressed={filters.country === c}
+            className={`pill small ${filters.country === c ? 'on' : ''}`}
+            onClick={() => toggleCountry(c)}
+          >
+            <span aria-hidden>{countryFlag(c)}</span> {countryName(c)}
+          </button>
+        ))}
+      </div>
       {availableTags.length > 0 && (
         <div className="chip-row">
           {availableTags.map((t) => (
