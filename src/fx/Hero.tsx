@@ -20,7 +20,7 @@ function Layer({ depth, items, scrollY, tiltX, tiltY }: {
   const tx = useTransform(tiltX, (v) => v * 26 * depth)
   const ty = useTransform(tiltY, (v) => v * 18 * depth)
   return (
-    <motion.div className="hero-layer" style={{ y, x: tx }}>
+    <motion.div className="hero-layer" style={{ y, x: tx }} aria-hidden>
       <motion.div style={{ y: ty, position: 'absolute', inset: 0 }}>
         {items.map(([emoji, left, top, size], i) => (
           <motion.span
@@ -79,7 +79,7 @@ export function Hero({ count, onOpenSettings, installAction }: Props) {
         >
           Snack<span>Check</span>
         </motion.h1>
-        <p className="tagline">{count} snacks judged so far</p>
+        <p className="tagline">{count} {count === 1 ? 'snack' : 'snacks'} judged so far</p>
       </motion.div>
     </header>
   )

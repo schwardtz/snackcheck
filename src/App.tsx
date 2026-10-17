@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
-import { db, seedIfFirstRun } from './db'
+import { db, requestPersistentStorage, seedIfFirstRun } from './db'
+import type { Filters } from './search'
 import { useRoute, navigate } from './router'
 import { Home } from './pages/Home'
 import { SnackDetail } from './pages/SnackDetail'
@@ -15,13 +16,17 @@ export default function App() {
   const route = useRoute()
   const [toast, setToast] = useState<ToastData | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // Lives here so search and filters survive a trip to a snack and back.
+  const [filters, setFilters] = useState<Filters>({ query: '', category: null, tags: [], sort: 'rating' })
 
   useEffect(() => {
     seedIfFirstRun()
+    requestPersistentStorage()
   }, [])
 
+  // Other screens start at the top; Home restores its own scroll position.
   useEffect(() => {
-    window.scrollTo({ top: 0 })
+    if (route.name !== 'home') window.scrollTo({ top: 0 })
   }, [route])
 
   useEffect(() => {
@@ -47,7 +52,9 @@ export default function App() {
   return (
     <>
       <ChipRain />
-      {route.name === 'home' && <Home onOpenSettings={() => setSettingsOpen(true)} />}
+      {route.name === 'home' && (
+        <Home filters={filters} onFiltersChange={setFilters} onOpenSettings={() => setSettingsOpen(true)} />
+      )}
       {route.name === 'snack' && <SnackDetail key={route.id} id={route.id} />}
       {route.name === 'new' && <EditSnack key="new" onMessage={showToast} />}
       {route.name === 'edit' && <EditSnack key={route.id} id={route.id} onMessage={showToast} />}

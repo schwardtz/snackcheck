@@ -1,13 +1,15 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { CATEGORY_EMOJI, db } from '../db'
-import { navigate } from '../router'
+import { back, navigate } from '../router'
 import { useBlobUrl } from '../useBlobUrl'
 import { RatingChips } from '../components/RatingChips'
 
 export function SnackDetail({ id }: { id: number }) {
-  const snack = useLiveQuery(() => db.snacks.get(id), [id])
-  const photo = useBlobUrl(snack?.photo)
+  // `null` = not found; useLiveQuery itself returns undefined only while loading.
+  const snack = useLiveQuery(async () => (await db.snacks.get(id)) ?? null, [id])
+  const photoRow = useLiveQuery(() => db.photos.get(id), [id])
+  const photo = useBlobUrl(photoRow?.blob ?? snack?.thumb)
   const { scrollY } = useScroll()
   // Photo header shrinks, drifts and fades as you scroll the notes up over it.
   const photoScale = useTransform(scrollY, [0, 300], [1.15, 1])
@@ -19,15 +21,15 @@ export function SnackDetail({ id }: { id: number }) {
     return (
       <div className="page detail-missing">
         <p>This snack has been eaten. 😋</p>
-        <button className="pill on" onClick={() => navigate('/')}>Back to the wall</button>
+        <button className="pill on" onClick={() => back('/')}>Back to the wall</button>
       </div>
     )
 
   return (
     <motion.div className="page detail" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
-      <button className="back-btn" onClick={() => navigate('/')} aria-label="Back">←</button>
+      <button className="back-btn" onClick={() => back('/')} aria-label="Back">←</button>
       <motion.div className={`detail-photo cat-${snack.category}`} style={{ scale: photoScale, y: photoY, opacity: photoOpacity }}>
-        {photo ? <img src={photo} alt={snack.name} /> : <span className="detail-emoji">{CATEGORY_EMOJI[snack.category]}</span>}
+        {photo ? <img src={photo} alt={snack.name} /> : <span className="detail-emoji" aria-hidden>{CATEGORY_EMOJI[snack.category]}</span>}
       </motion.div>
       <motion.section
         className="detail-sheet"
@@ -35,12 +37,12 @@ export function SnackDetail({ id }: { id: number }) {
         animate={{ y: 0 }}
         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
       >
-        <div className="detail-cat">{CATEGORY_EMOJI[snack.category]} {snack.category}</div>
+        <div className="detail-cat"><span aria-hidden>{CATEGORY_EMOJI[snack.category]}</span> {snack.category}</div>
         <h2>{snack.name}</h2>
         {snack.brand && <div className="detail-brand">by {snack.brand}</div>}
         <div className="detail-rating">
           <RatingChips rating={snack.rating} size={30} />
-          <span className="detail-score">{snack.rating}</span>
+          <span className="detail-score" aria-hidden>{snack.rating}</span>
         </div>
         <div className={`buy-again ${snack.wouldBuyAgain ? 'yes' : 'no'}`}>
           {snack.wouldBuyAgain ? '🛒 Would buy again' : '🚫 Not buying again'}

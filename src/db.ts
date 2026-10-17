@@ -24,20 +24,62 @@ export interface Snack {
   rating: number // 0.5 – 5 in half steps
   tags: string[]
   notes: string
-  photo?: Blob
-  thumb?: Blob
+  thumb?: Blob // small preview for the wall; the full photo lives in `photos`
   wouldBuyAgain: boolean
   createdAt: number
   updatedAt: number
 }
 
+/** Full-size photo, kept apart so listing snacks doesn't load every big image. */
+export interface Photo {
+  id: number // same as the snack id
+  blob: Blob
+}
+
 export const db = new Dexie('snackcheck') as Dexie & {
   snacks: EntityTable<Snack, 'id'>
+  photos: EntityTable<Photo, 'id'>
 }
 
 db.version(1).stores({
   snacks: '++id, name, category, rating, createdAt',
 })
+
+db.version(2)
+  .stores({ snacks: '++id, name, category, rating, createdAt', photos: 'id' })
+  .upgrade(async (tx) => {
+    const old: (Snack & { photo?: Blob })[] = await tx.table('snacks').toArray()
+    for (const { photo, ...snack } of old) {
+      if (photo) await tx.table('photos').put({ id: snack.id!, blob: photo })
+      await tx.table('snacks').put(snack)
+    }
+  })
+
+/** Save a snack and its full photo together. `photo: null` removes the photo. */
+export async function saveSnack(snack: Snack, photo?: Blob | null): Promise<number> {
+  return db.transaction('rw', db.snacks, db.photos, async () => {
+    const id = (await db.snacks.put(snack)) as number
+    if (photo) await db.photos.put({ id, blob: photo })
+    else if (photo === null) await db.photos.delete(id)
+    return id
+  })
+}
+
+/** Delete a snack and its photo; returns what's needed to undo. */
+export async function deleteSnack(id: number) {
+  return db.transaction('rw', db.snacks, db.photos, async () => {
+    const snack = await db.snacks.get(id)
+    const photo = await db.photos.get(id)
+    await db.snacks.delete(id)
+    await db.photos.delete(id)
+    return { snack, photo }
+  })
+}
+
+/** Ask the browser not to evict our data under storage pressure (it's the only copy). */
+export function requestPersistentStorage() {
+  navigator.storage?.persist?.().catch(() => {})
+}
 
 const SEEDED_KEY = 'snackcheck:seeded'
 

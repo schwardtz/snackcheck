@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
-import { CATEGORIES, CATEGORY_EMOJI, TASTE_TAGS, db, type Category, type Snack } from '../db'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { CATEGORIES, CATEGORY_EMOJI, TASTE_TAGS, db, deleteSnack, saveSnack, type Snack } from '../db'
 import { processPhoto } from '../image'
-import { navigate } from '../router'
+import { back, replace } from '../router'
 import { useBlobUrl } from '../useBlobUrl'
 import { RatingInput } from '../components/RatingInput'
 import { snackBurst } from '../fx/burst'
@@ -18,14 +18,23 @@ const EMPTY: Omit<Snack, 'createdAt' | 'updatedAt'> = {
 
 export function EditSnack({ id, onMessage }: Props) {
   const [snack, setSnack] = useState<Omit<Snack, 'createdAt' | 'updatedAt'> & { createdAt?: number }>()
+  // Full photo is stored separately; `null` = no photo, `photoChanged` = needs saving.
+  const [photo, setPhoto] = useState<Blob | null>(null)
+  const [photoChanged, setPhotoChanged] = useState(false)
   const [processing, setProcessing] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
-  const photoUrl = useBlobUrl(snack?.photo)
+  const cameraRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
+  const photoUrl = useBlobUrl(photo ?? undefined)
   const isNew = id == null
+  const backTo = isNew ? '/' : `/snack/${id}`
 
   useEffect(() => {
     if (isNew) return setSnack({ ...EMPTY })
-    db.snacks.get(id).then((s) => (s ? setSnack(s) : navigate('/')))
+    Promise.all([db.snacks.get(id), db.photos.get(id)]).then(([s, p]) => {
+      if (!s) return replace('/')
+      setSnack(s)
+      setPhoto(p?.blob ?? null)
+    })
   }, [id, isNew])
 
   if (!snack) return <div className="page" />
@@ -39,7 +48,10 @@ export function EditSnack({ id, onMessage }: Props) {
     if (!file) return
     setProcessing(true)
     try {
-      set(await processPhoto(file))
+      const { photo, thumb } = await processPhoto(file)
+      setPhoto(photo)
+      setPhotoChanged(true)
+      set({ thumb })
     } catch {
       onMessage("Couldn't read that photo 🙈")
     } finally {
@@ -51,70 +63,80 @@ export function EditSnack({ id, onMessage }: Props) {
     if (!snack) return
     const name = snack.name.trim()
     if (!name) return onMessage('Give your snack a name first ✍️')
+    if (!snack.rating) return onMessage('Tap the chips to rate it first 🥔')
     const now = Date.now()
     const record: Snack = {
       ...snack,
       name,
       brand: snack.brand?.trim() || undefined,
       notes: snack.notes.trim(),
-      rating: snack.rating || 0.5,
       createdAt: snack.createdAt ?? now,
       updatedAt: now,
     }
-    const savedId = await db.snacks.put(record)
+    const savedId = await saveSnack(record, photoChanged ? photo : undefined)
     snackBurst({ big: record.rating >= 5 })
     onMessage(isNew ? `${name} logged! 🍿` : 'Saved ✨')
-    navigate(`/snack/${savedId}`)
+    // Replace/pop the form so Android's back button doesn't return into it.
+    if (isNew) replace(`/snack/${savedId}`)
+    else back(`/snack/${savedId}`)
   }
 
   async function remove() {
     if (isNew) return
-    const existing = await db.snacks.get(id)
-    if (!existing || !confirm(`Delete ${existing.name}?`)) return
-    await db.snacks.delete(id)
-    onMessage(`${existing.name} deleted`, { label: 'Undo', run: () => db.snacks.put(existing) })
-    navigate('/')
+    const { snack: gone, photo: gonePhoto } = await deleteSnack(id)
+    if (!gone) return
+    onMessage(`${gone.name} deleted`, { label: 'Undo', run: () => saveSnack(gone, gonePhoto?.blob) })
+    back('/', 2) // skip the now-empty detail page
+  }
+
+  function onPick(e: ChangeEvent<HTMLInputElement>) {
+    pickPhoto(e.target.files?.[0])
+    e.target.value = ''
   }
 
   return (
     <motion.div className="page editor" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
       <header className="editor-head">
-        <button className="back-btn static" onClick={() => history.back()} aria-label="Back">←</button>
+        <button className="back-btn static" onClick={() => back(backTo)} aria-label="Back">←</button>
         <h2>{isNew ? 'New snack' : 'Edit snack'}</h2>
       </header>
 
       <button
         type="button"
         className={`editor-photo cat-${snack.category}`}
-        onClick={() => fileRef.current?.click()}
-        aria-label={photoUrl ? 'Change photo' : 'Add photo'}
+        onClick={() => cameraRef.current?.click()}
+        aria-label={photoUrl ? 'Retake photo' : 'Take photo'}
       >
         {photoUrl ? (
           <img src={photoUrl} alt="" />
         ) : (
           <span className="editor-photo-empty">
-            <span className="editor-photo-icon">📷</span>
+            <span className="editor-photo-icon" aria-hidden>📷</span>
             {processing ? 'Processing…' : 'Snap the snack'}
           </span>
         )}
-        {photoUrl && <span className="editor-photo-change">Change photo</span>}
       </button>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        hidden
-        onChange={(e) => {
-          pickPhoto(e.target.files?.[0])
-          e.target.value = ''
-        }}
-      />
-      {photoUrl && (
-        <button type="button" className="link-btn" onClick={() => set({ photo: undefined, thumb: undefined })}>
-          Remove photo
+      {/* Two inputs: `capture` opens the camera directly but hides the gallery on Android. */}
+      <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden onChange={onPick} />
+      <input ref={galleryRef} type="file" accept="image/*" hidden onChange={onPick} />
+      <div className="photo-actions">
+        <button type="button" className="link-btn" onClick={() => galleryRef.current?.click()}>
+          🖼️ Choose from gallery
         </button>
-      )}
+        {photoUrl && (
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => {
+              setPhoto(null)
+              setPhotoChanged(true)
+              set({ thumb: undefined })
+            }}
+          >
+            Remove photo
+          </button>
+        )}
+      </div>
 
       <label className="field">
         <span>Name</span>
@@ -145,7 +167,13 @@ export function EditSnack({ id, onMessage }: Props) {
         <span>Tastes like</span>
         <div className="chip-row wrap">
           {TASTE_TAGS.map((t) => (
-            <button key={t} type="button" className={`pill small ${snack.tags.includes(t) ? 'on' : ''}`} onClick={() => toggleTag(t)}>
+            <button
+              key={t}
+              type="button"
+              aria-pressed={snack.tags.includes(t)}
+              className={`pill small ${snack.tags.includes(t) ? 'on' : ''}`}
+              onClick={() => toggleTag(t)}
+            >
               #{t}
             </button>
           ))}
@@ -155,8 +183,14 @@ export function EditSnack({ id, onMessage }: Props) {
       <div className="field">
         <span>Category</span>
         <div className="chip-row wrap">
-          {CATEGORIES.map((c: Category) => (
-            <button key={c} type="button" className={`pill ${snack.category === c ? 'on' : ''}`} onClick={() => set({ category: c })}>
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={snack.category === c}
+              className={`pill ${snack.category === c ? 'on' : ''}`}
+              onClick={() => set({ category: c })}
+            >
               {CATEGORY_EMOJI[c]} {c}
             </button>
           ))}

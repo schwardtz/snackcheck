@@ -25,6 +25,7 @@ export function SearchBar({ filters, onChange, availableTags }: Props) {
         <span aria-hidden>🔍</span>
         <input
           type="search"
+          aria-label="Search snacks"
           placeholder="Search snacks, brands, notes…"
           value={filters.query}
           onChange={(e) => set({ query: e.target.value })}
@@ -32,13 +33,13 @@ export function SearchBar({ filters, onChange, availableTags }: Props) {
       </div>
       <div className="chip-row">
         {SORTS.map((s) => (
-          <button key={s.key} className={`pill ${filters.sort === s.key ? 'on' : ''}`} onClick={() => set({ sort: s.key })}>
+          <button key={s.key} aria-pressed={filters.sort === s.key} className={`pill ${filters.sort === s.key ? 'on' : ''}`} onClick={() => set({ sort: s.key })}>
             {s.label}
           </button>
         ))}
         <span className="chip-sep" />
         {CATEGORIES.map((c) => (
-          <button key={c} className={`pill ${filters.category === c ? 'on' : ''}`} onClick={() => toggleCat(c)}>
+          <button key={c} aria-pressed={filters.category === c} className={`pill ${filters.category === c ? 'on' : ''}`} onClick={() => toggleCat(c)}>
             {CATEGORY_EMOJI[c]} {c}
           </button>
         ))}
@@ -46,7 +47,7 @@ export function SearchBar({ filters, onChange, availableTags }: Props) {
       {availableTags.length > 0 && (
         <div className="chip-row">
           {availableTags.map((t) => (
-            <button key={t} className={`pill small ${filters.tags.includes(t) ? 'on' : ''}`} onClick={() => toggleTag(t)}>
+            <button key={t} aria-pressed={filters.tags.includes(t)} className={`pill small ${filters.tags.includes(t) ? 'on' : ''}`} onClick={() => toggleTag(t)}>
               #{t}
             </button>
           ))}

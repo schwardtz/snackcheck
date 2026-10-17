@@ -22,7 +22,7 @@ export function SnackCard({ snack, index }: { snack: Snack; index: number }) {
       whileTap={{ scale: 0.94, rotate: tilt * -1.5 }}
     >
       <div className={`card-photo cat-${snack.category}`}>
-        {thumb ? <img src={thumb} alt="" loading="lazy" /> : <span className="card-emoji">{CATEGORY_EMOJI[snack.category]}</span>}
+        {thumb ? <img src={thumb} alt="" loading="lazy" /> : <span className="card-emoji" aria-hidden>{CATEGORY_EMOJI[snack.category]}</span>}
         {snack.wouldBuyAgain && <span className="badge">buy again!</span>}
       </div>
       <div className="card-body">

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { exportSnacks, importSnacks } from '../backup'
 import { setFxEnabled, useFxEnabled } from '../fx/fxEnabled'
 
@@ -11,11 +11,28 @@ interface Props {
 export function Settings({ onClose, onMessage }: Props) {
   const fx = useFxEnabled()
   const fileRef = useRef<HTMLInputElement>(null)
+  const sheetRef = useRef<HTMLDivElement>(null)
+
+  const closeRef = useRef(onClose)
+  closeRef.current = onClose
+
+  // Focus the dialog once on open; Escape closes it.
+  useEffect(() => {
+    sheetRef.current?.focus()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current()
+    addEventListener('keydown', onKey)
+    return () => removeEventListener('keydown', onKey)
+  }, [])
 
   return (
     <motion.div className="sheet-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
       <motion.div
+        ref={sheetRef}
         className="sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
+        tabIndex={-1}
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
@@ -27,7 +44,7 @@ export function Settings({ onClose, onMessage }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sheet-handle" />
-        <h3>⚙️ Settings</h3>
+        <h3 id="settings-title">⚙️ Settings</h3>
 
         <label className="toggle-row">
           <span>✨ Flying chips & effects</span>
@@ -52,7 +69,8 @@ export function Settings({ onClose, onMessage }: Props) {
               e.target.value = ''
               if (!file) return
               try {
-                onMessage(`Imported ${await importSnacks(file)} snacks 🎉`)
+                const { added, skipped } = await importSnacks(file)
+                onMessage(`Imported ${added} snacks 🎉${skipped ? ` (${skipped} already here)` : ''}`)
               } catch {
                 onMessage("That file doesn't look like a SnackCheck backup 🤨")
               }

@@ -664,18 +664,6 @@ button {
 .editor-photo-icon {
   font-size: 48px;
 }
-.editor-photo-change {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  padding: 4px 10px;
-  border: 1px solid var(--cyan);
-  background: rgba(7, 6, 13, 0.8);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
 .editor .field {
   margin-top: 18px;
 }
@@ -696,6 +684,14 @@ button {
   outline: 0;
   border-color: var(--cyan);
   box-shadow: var(--glow-cyan);
+}
+.photo-actions {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+.photo-actions .link-btn {
+  margin: 6px 0 0;
 }
 .link-btn {
   display: block;
@@ -718,6 +714,11 @@ button {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.rating-input:focus-visible {
+  outline: 1px solid var(--cyan);
+  outline-offset: 4px;
+  box-shadow: var(--glow-cyan);
 }
 .rating-input-chip {
   position: relative;
