@@ -1,13 +1,16 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useState } from 'react'
 import { getApiKey, restoreSnack, type PromptResult } from './ai'
-import { seedIfFirstRun } from './db'
+import { db, seedIfFirstRun } from './db'
 import { useRoute, navigate } from './router'
 import { Home } from './pages/Home'
 import { SnackDetail } from './pages/SnackDetail'
 import { PromptBar } from './components/PromptBar'
 import { Settings } from './components/Settings'
 import { Toast, type ToastData } from './components/Toast'
+import { ChipRain } from './fx/ChipRain'
+import { snackBurst } from './fx/burst'
+import { useShake } from './fx/useShake'
 
 export default function App() {
   const route = useRoute()
@@ -42,6 +45,8 @@ export default function App() {
       } else {
         showToast(reply)
       }
+      if (added) snackBurst({ big: added.snack.rating >= 5 })
+      else if (changes.some((c) => c.kind === 'updated')) snackBurst({ origin: { x: 0.5, y: 0.5 } })
       if (added && changes.length === 1) navigate(`/snack/${added.snack.id}`)
     },
     [route, showToast],
@@ -55,8 +60,19 @@ export default function App() {
     [showToast],
   )
 
+  // Easter egg: shake the phone for a random favourite.
+  useShake(async () => {
+    const favs = await db.snacks.where('rating').aboveOrEqual(4).toArray()
+    if (!favs.length) return showToast('Shake harder… or rate something 4+ first 🫨')
+    const pick = favs[Math.floor(Math.random() * favs.length)]
+    navigate(`/snack/${pick.id}`)
+    snackBurst({ origin: { x: 0.5, y: 0.3 } })
+    showToast(`🎲 Craving? How about ${pick.name}!`)
+  })
+
   return (
     <>
+      <ChipRain />
       {route.name === 'home' ? <Home onOpenSettings={() => setSettingsOpen(true)} /> : <SnackDetail key={route.id} id={route.id} />}
       <PromptBar focusSnackId={route.name === 'snack' ? route.id : undefined} onResult={onResult} onError={onError} />
       <Toast toast={toast} onClose={() => setToast(null)} />
