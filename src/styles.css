@@ -15,10 +15,8 @@
   --glow-pink: 0 0 6px rgba(255, 43, 214, 0.9), 0 0 18px rgba(255, 43, 214, 0.45);
   --glow-cyan: 0 0 6px rgba(0, 240, 255, 0.9), 0 0 18px rgba(0, 240, 255, 0.4);
   --glow-acid: 0 0 6px rgba(212, 255, 42, 0.9), 0 0 16px rgba(212, 255, 42, 0.4);
-  --radius: 3px;
-  /* Notched corners: top-left and bottom-right are cut off. */
-  --notch: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
-  --notch-sm: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  /* One corner radius for every control and panel, so edges and glows stay even. */
+  --radius: 4px;
   --cat-chips: linear-gradient(135deg, #2a1f05, #4a3608);
   --cat-sweet: linear-gradient(135deg, #2b0626, #4d0b44);
   --cat-savory: linear-gradient(135deg, #2a1206, #4a210b);
@@ -254,7 +252,7 @@ button {
   flex: 0 0 auto;
   padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink-soft);
   font-size: 13px;
@@ -297,12 +295,14 @@ button {
   position: relative;
   display: flex;
   flex-direction: column;
-  padding: 1px;
-  border: 0;
-  border-radius: 0;
-  /* 1px gradient frame: padding shows the gradient, children paint over it. */
-  background: linear-gradient(135deg, var(--pink), var(--cyan));
-  clip-path: var(--notch);
+  padding: 0;
+  /* Gradient frame as a real border (surface fill + gradient border box). */
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, var(--pink), var(--cyan)) border-box;
+  overflow: hidden;
   text-align: left;
 }
 
@@ -312,7 +312,6 @@ button {
   display: grid;
   place-items: center;
   overflow: hidden;
-  clip-path: polygon(11px 0, 100% 0, 100% 100%, 0 100%, 0 11px);
 }
 .card-photo img {
   width: 100%;
@@ -351,7 +350,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%);
+  border-radius: var(--radius) 0 0 var(--radius);
 }
 
 .card-body {
@@ -360,7 +359,6 @@ button {
   gap: 3px;
   padding: 10px 12px 12px;
   background: var(--surface);
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%);
 }
 .card-name {
   font-size: 15px;
@@ -495,7 +493,7 @@ button {
 .detail-score {
   padding: 2px 10px;
   border: 1px solid var(--acid);
-  border-radius: 2px;
+  border-radius: var(--radius);
   color: var(--acid);
   font-family: 'Orbitron', sans-serif;
   font-size: 20px;
@@ -508,7 +506,7 @@ button {
   margin-bottom: 12px;
   padding: 4px 12px;
   border: 1px solid;
-  border-radius: 2px;
+  border-radius: var(--radius);
   font-weight: 700;
   font-size: 13px;
   letter-spacing: 0.08em;
@@ -574,7 +572,6 @@ button {
   height: 52px;
   border: 1px solid var(--cyan);
   border-radius: var(--radius);
-  clip-path: var(--notch);
   background: rgba(0, 240, 255, 0.16);
   box-shadow: var(--glow-cyan);
   color: #fff;
@@ -597,7 +594,6 @@ button {
   height: 64px;
   border: 1px solid var(--pink);
   border-radius: var(--radius);
-  clip-path: var(--notch);
   background: rgba(255, 43, 214, 0.2);
   box-shadow: var(--glow-pink);
   color: #fff;
@@ -642,7 +638,6 @@ button {
   padding: 0;
   border: 1px dashed var(--cyan);
   border-radius: var(--radius);
-  clip-path: var(--notch);
   overflow: hidden;
   color: var(--cyan);
 }
@@ -768,7 +763,7 @@ button {
 .toast-action {
   padding: 6px 12px;
   border: 1px solid var(--pink);
-  border-radius: 2px;
+  border-radius: var(--radius);
   background: rgba(255, 43, 214, 0.15);
   color: var(--pink);
   font-weight: 700;
