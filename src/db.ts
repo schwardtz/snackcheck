@@ -20,6 +20,7 @@ export interface Snack {
   id?: number
   name: string
   brand?: string
+  country?: string // ISO 3166-1 alpha-2, e.g. "JP"
   category: Category
   rating: number // 0.5 – 5 in half steps
   tags: string[]
@@ -109,17 +110,17 @@ function demoSnacks(): Snack[] {
   const now = Date.now()
   return [
     {
-      name: 'Sea Salt & Vinegar Chips', brand: 'Demo Snack Co.', category: 'chips', rating: 4.5,
+      name: 'Sea Salt & Vinegar Chips', brand: 'Demo Snack Co.', country: 'GB', category: 'chips', rating: 4.5,
       tags: ['crunchy', 'salty', 'sour'], notes: 'Mouth-puckering in the best way. Demo snack: delete me!',
       wouldBuyAgain: true, createdAt: now - 3000, updatedAt: now - 3000,
     },
     {
-      name: 'Matcha Wafer Bar', brand: 'Demo Snack Co.', category: 'sweet', rating: 3,
+      name: 'Matcha Wafer Bar', brand: 'Demo Snack Co.', country: 'JP', category: 'sweet', rating: 3,
       tags: ['sweet', 'creamy'], notes: 'Nice crunch, matcha a bit shy. Demo snack.',
       wouldBuyAgain: false, createdAt: now - 2000, updatedAt: now - 2000,
     },
     {
-      name: 'Ghost Pepper Pretzels', brand: 'Demo Snack Co.', category: 'savory', rating: 5,
+      name: 'Ghost Pepper Pretzels', brand: 'Demo Snack Co.', country: 'US', category: 'savory', rating: 5,
       tags: ['spicy', 'crunchy', 'smoky'], notes: 'Regret, then joy, then more regret. Demo snack.',
       wouldBuyAgain: true, createdAt: now - 1000, updatedAt: now - 1000,
     },

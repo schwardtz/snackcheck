@@ -42,13 +42,19 @@ export function Home({ filters, onFiltersChange, onOpenSettings }: Props) {
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 14).map(([t]) => t)
   }, [snacks])
 
+  const countries = useMemo(() => {
+    const counts = new Map<string, number>()
+    snacks?.forEach((s) => s.country && counts.set(s.country, (counts.get(s.country) ?? 0) + 1))
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c)
+  }, [snacks])
+
   const list = useMemo(() => (snacks ? filterSnacks(snacks, filters) : []), [snacks, filters])
 
   return (
     <div className="page home">
       <Hero count={snacks?.length ?? 0} onOpenSettings={onOpenSettings} installAction={install} />
       <div className="sticky-search">
-        <SearchBar filters={filters} onChange={onFiltersChange} availableTags={tags} />
+        <SearchBar filters={filters} onChange={onFiltersChange} availableTags={tags} availableCountries={countries} />
       </div>
       {snacks && snacks.length === 0 && (
         <div className="empty">

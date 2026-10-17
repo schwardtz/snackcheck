@@ -1,5 +1,6 @@
 import { CATEGORIES, CATEGORY_EMOJI, type Category } from '../db'
 import type { Filters, SortKey } from '../search'
+import { countryFlag, countryName } from '../countries'
 
 const SORTS: { key: SortKey; label: string }[] = [
   { key: 'rating', label: '🏆 Top' },
@@ -11,11 +12,13 @@ interface Props {
   filters: Filters
   onChange: (f: Filters) => void
   availableTags: string[]
+  availableCountries: string[]
 }
 
-export function SearchBar({ filters, onChange, availableTags }: Props) {
+export function SearchBar({ filters, onChange, availableTags, availableCountries }: Props) {
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch })
   const toggleCat = (c: Category) => set({ category: filters.category === c ? null : c })
+  const toggleCountry = (c: string) => set({ country: filters.country === c ? null : c })
   const toggleTag = (t: string) =>
     set({ tags: filters.tags.includes(t) ? filters.tags.filter((x) => x !== t) : [...filters.tags, t] })
 
@@ -44,6 +47,20 @@ export function SearchBar({ filters, onChange, availableTags }: Props) {
           </button>
         ))}
       </div>
+      {availableCountries.length > 0 && (
+        <div className="chip-row" aria-label="Filter by country">
+          {availableCountries.map((c) => (
+            <button
+              key={c}
+              aria-pressed={filters.country === c}
+              className={`pill small ${filters.country === c ? 'on' : ''}`}
+              onClick={() => toggleCountry(c)}
+            >
+              <span aria-hidden>{countryFlag(c)}</span> {countryName(c)}
+            </button>
+          ))}
+        </div>
+      )}
       {availableTags.length > 0 && (
         <div className="chip-row">
           {availableTags.map((t) => (

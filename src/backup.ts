@@ -1,5 +1,6 @@
 import { CATEGORIES, db, saveSnack, type Category, type Snack } from './db'
 import { blobToDataUrl, dataUrlToBlob } from './image'
+import { isCountryCode } from './countries'
 
 interface SerializedSnack extends Omit<Snack, 'thumb'> {
   thumb?: string
@@ -42,6 +43,7 @@ async function parseRow(row: Record<string, unknown>) {
   const snack: Snack = {
     name,
     brand: str(row.brand).trim() || undefined,
+    country: isCountryCode(row.country) ? row.country : undefined,
     category: CATEGORIES.includes(row.category as Category) ? (row.category as Category) : 'other',
     rating: Math.min(5, Math.max(0.5, Math.round(num(row.rating, 3) * 2) / 2)),
     tags: Array.isArray(row.tags) ? row.tags.filter((t): t is string => typeof t === 'string') : [],

@@ -6,6 +6,7 @@ import { back, replace } from '../router'
 import { useBlobUrl } from '../useBlobUrl'
 import { RatingInput } from '../components/RatingInput'
 import { snackBurst } from '../fx/burst'
+import { COUNTRIES, countryFlag, countryName } from '../countries'
 
 interface Props {
   id?: number
@@ -22,11 +23,21 @@ export function EditSnack({ id, onMessage }: Props) {
   const [photo, setPhoto] = useState<Blob | null>(null)
   const [photoChanged, setPhotoChanged] = useState(false)
   const [processing, setProcessing] = useState(false)
+  const [usedCountries, setUsedCountries] = useState<string[]>([])
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
   const photoUrl = useBlobUrl(photo ?? undefined)
   const isNew = id == null
   const backTo = isNew ? '/' : `/snack/${id}`
+
+  // Countries already in the collection, most used first, for the top of the picker.
+  useEffect(() => {
+    db.snacks.toArray().then((all) => {
+      const counts = new Map<string, number>()
+      all.forEach((s) => s.country && counts.set(s.country, (counts.get(s.country) ?? 0) + 1))
+      setUsedCountries([...counts.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c))
+    })
+  }, [])
 
   useEffect(() => {
     if (isNew) return setSnack({ ...EMPTY })
@@ -146,6 +157,29 @@ export function EditSnack({ id, onMessage }: Props) {
       <label className="field">
         <span>Brand <small>(optional)</small></span>
         <input value={snack.brand ?? ''} placeholder="Lay's" onChange={(e) => set({ brand: e.target.value })} />
+      </label>
+
+      <label className="field">
+        <span>Country <small>(optional)</small></span>
+        <select value={snack.country ?? ''} onChange={(e) => set({ country: e.target.value || undefined })}>
+          <option value="">Not set</option>
+          {usedCountries.length > 0 && (
+            <optgroup label="Used before">
+              {usedCountries.map((c) => (
+                <option key={c} value={c}>
+                  {countryFlag(c)} {countryName(c)}
+                </option>
+              ))}
+            </optgroup>
+          )}
+          <optgroup label="All countries">
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {countryFlag(c.code)} {c.name}
+              </option>
+            ))}
+          </optgroup>
+        </select>
       </label>
 
       <div className="field">

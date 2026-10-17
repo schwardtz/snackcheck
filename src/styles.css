@@ -477,6 +477,19 @@ button {
   line-height: 1.15;
   text-shadow: 0 0 10px rgba(255, 43, 214, 0.6);
 }
+.detail-country {
+  margin-top: 4px;
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 6px rgba(0, 240, 255, 0.5);
+}
+.card-flag {
+  margin-right: 5px;
+  font-size: 14px;
+  letter-spacing: 0;
+}
 .detail-brand {
   color: var(--ink-soft);
   font-weight: 600;
@@ -821,7 +834,8 @@ button {
   font-weight: 700;
   letter-spacing: 0.04em;
 }
-.field input {
+.field input,
+.field select {
   height: 44px;
   padding: 0 12px;
   border: 1px solid var(--line);
@@ -831,6 +845,16 @@ button {
   font: inherit;
   font-size: 16px;
 }
+.field select {
+  appearance: none;
+  /* Small neon chevron, since the native arrow is hidden. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--cyan) 50%), linear-gradient(-45deg, transparent 50%, var(--cyan) 50%);
+  background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 36px;
+}
+.field select:focus,
 .field input:focus {
   outline: 0;
   border-color: var(--cyan);

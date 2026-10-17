@@ -4,6 +4,7 @@ import { CATEGORY_EMOJI, db } from '../db'
 import { back, navigate } from '../router'
 import { useBlobUrl } from '../useBlobUrl'
 import { RatingChips } from '../components/RatingChips'
+import { countryFlag, countryName } from '../countries'
 
 export function SnackDetail({ id }: { id: number }) {
   // `null` = not found; useLiveQuery itself returns undefined only while loading.
@@ -40,6 +41,11 @@ export function SnackDetail({ id }: { id: number }) {
         <div className="detail-cat"><span aria-hidden>{CATEGORY_EMOJI[snack.category]}</span> {snack.category}</div>
         <h2>{snack.name}</h2>
         {snack.brand && <div className="detail-brand">by {snack.brand}</div>}
+        {snack.country && (
+          <div className="detail-country">
+            <span aria-hidden>{countryFlag(snack.country)}</span> {countryName(snack.country)}
+          </div>
+        )}
         <div className="detail-rating">
           <RatingChips rating={snack.rating} size={30} />
           <span className="detail-score" aria-hidden>{snack.rating}</span>

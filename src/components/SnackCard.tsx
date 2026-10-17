@@ -3,6 +3,7 @@ import { CATEGORY_EMOJI, type Snack } from '../db'
 import { navigate } from '../router'
 import { useBlobUrl } from '../useBlobUrl'
 import { RatingChips } from './RatingChips'
+import { countryFlag, countryName } from '../countries'
 
 export function SnackCard({ snack, index }: { snack: Snack; index: number }) {
   const thumb = useBlobUrl(snack.thumb)
@@ -27,7 +28,16 @@ export function SnackCard({ snack, index }: { snack: Snack; index: number }) {
       </div>
       <div className="card-body">
         <strong className="card-name">{snack.name}</strong>
-        {snack.brand && <span className="card-brand">{snack.brand}</span>}
+        {(snack.brand || snack.country) && (
+          <span className="card-brand">
+            {snack.country && (
+              <span className="card-flag" role="img" aria-label={countryName(snack.country)}>
+                {countryFlag(snack.country)}
+              </span>
+            )}
+            {snack.brand}
+          </span>
+        )}
         <RatingChips rating={snack.rating} size={15} />
       </div>
     </motion.button>

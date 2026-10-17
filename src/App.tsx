@@ -17,7 +17,7 @@ export default function App() {
   const [toast, setToast] = useState<ToastData | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   // Lives here so search and filters survive a trip to a snack and back.
-  const [filters, setFilters] = useState<Filters>({ query: '', category: null, tags: [], sort: 'rating' })
+  const [filters, setFilters] = useState<Filters>({ query: '', category: null, country: null, tags: [], sort: 'rating' })
 
   useEffect(() => {
     seedIfFirstRun()
