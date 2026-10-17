@@ -41,17 +41,31 @@ db.version(1).stores({
 
 const SEEDED_KEY = 'snackcheck:seeded'
 
+let seeding: Promise<void> | undefined
+
 /** Drop a few demo snacks on first launch so the wall isn't empty. */
-export async function seedIfFirstRun() {
+export function seedIfFirstRun() {
+  seeding ??= seed()
+  return seeding
+}
+
+async function seed() {
   try {
     if (localStorage.getItem(SEEDED_KEY)) return
-    localStorage.setItem(SEEDED_KEY, '1')
   } catch {
     return
   }
-  if ((await db.snacks.count()) > 0) return
+  if ((await db.snacks.count()) === 0) await db.snacks.bulkAdd(demoSnacks())
+  try {
+    localStorage.setItem(SEEDED_KEY, '1')
+  } catch {
+    /* ignore */
+  }
+}
+
+function demoSnacks(): Snack[] {
   const now = Date.now()
-  await db.snacks.bulkAdd([
+  return [
     {
       name: 'Sea Salt & Vinegar Chips', brand: 'Demo Snack Co.', category: 'chips', rating: 4.5,
       tags: ['crunchy', 'salty', 'sour'], notes: 'Mouth-puckering in the best way. Demo snack: delete me!',
@@ -67,5 +81,5 @@ export async function seedIfFirstRun() {
       tags: ['spicy', 'crunchy', 'smoky'], notes: 'Regret, then joy, then more regret. Demo snack.',
       wouldBuyAgain: true, createdAt: now - 1000, updatedAt: now - 1000,
     },
-  ])
+  ]
 }
