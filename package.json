@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
     "canvas-confetti": "^1.9.4",
     "dexie": "^4.4.6",
     "framer-motion": "^14.3.0",
