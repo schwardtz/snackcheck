@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
 
-/** Tiny hash router: `#/` → home, `#/snack/12` → detail. Hash URLs never 404 on GitHub Pages. */
-export type Route = { name: 'home' } | { name: 'snack'; id: number }
+/** Tiny hash router. Hash URLs never 404 on GitHub Pages. */
+export type Route =
+  | { name: 'home' }
+  | { name: 'new' }
+  | { name: 'snack'; id: number }
+  | { name: 'edit'; id: number }
 
 function parse(hash: string): Route {
-  const m = hash.match(/^#\/snack\/(\d+)/)
-  return m ? { name: 'snack', id: Number(m[1]) } : { name: 'home' }
+  if (hash.startsWith('#/new')) return { name: 'new' }
+  const m = hash.match(/^#\/snack\/(\d+)(\/edit)?/)
+  if (!m) return { name: 'home' }
+  return m[2] ? { name: 'edit', id: Number(m[1]) } : { name: 'snack', id: Number(m[1]) }
 }
 
 export function useRoute() {

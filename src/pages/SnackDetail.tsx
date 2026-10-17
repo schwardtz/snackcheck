@@ -55,8 +55,12 @@ export function SnackDetail({ id }: { id: number }) {
           First tasted {new Date(snack.createdAt).toLocaleDateString()}
           {snack.updatedAt !== snack.createdAt && ` · updated ${new Date(snack.updatedAt).toLocaleDateString()}`}
         </p>
-        <p className="meta hint">Change anything by telling me below 👇</p>
       </motion.section>
+      <div className="bottom-bar">
+        <motion.button className="save-btn" whileTap={{ scale: 0.95 }} onClick={() => navigate(`/snack/${snack.id}/edit`)}>
+          ✏️ Edit
+        </motion.button>
+      </div>
     </motion.div>
   )
 }

@@ -552,121 +552,191 @@ button {
   font-size: 20px;
 }
 
-/* ---------- Prompt bar ---------- */
-.promptbar-wrap {
+/* ---------- Bottom bar & add button ---------- */
+.bottom-bar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 10;
-  padding: 10px 12px max(12px, env(safe-area-inset-bottom));
+  padding: 18px 16px max(14px, env(safe-area-inset-bottom));
   background: linear-gradient(transparent, rgba(7, 6, 13, 0.97) 45%);
   pointer-events: none;
 }
-.promptbar {
+.save-btn {
   pointer-events: auto;
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  max-width: 720px;
+  display: block;
+  width: 100%;
+  max-width: 688px;
   margin: 0 auto;
-  padding: 6px;
+  height: 52px;
+  border: 1px solid var(--cyan);
+  border-radius: var(--radius);
+  clip-path: var(--notch);
+  background: rgba(0, 240, 255, 0.16);
+  box-shadow: var(--glow-cyan);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px var(--cyan);
+}
+.save-btn:disabled {
+  opacity: 0.5;
+}
+.fab {
+  position: fixed;
+  right: max(18px, calc((100vw - 720px) / 2 + 18px));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 10;
+  width: 64px;
+  height: 64px;
   border: 1px solid var(--pink);
   border-radius: var(--radius);
-  background: rgba(15, 12, 28, 0.95);
+  clip-path: var(--notch);
+  background: rgba(255, 43, 214, 0.2);
   box-shadow: var(--glow-pink);
-  transition: box-shadow 0.2s, border-color 0.2s;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 34px;
+  line-height: 1;
+  text-shadow: 0 0 10px var(--pink);
 }
-.promptbar:focus-within {
-  border-color: var(--cyan);
-  box-shadow: var(--glow-cyan), 0 0 40px rgba(0, 240, 255, 0.25);
+
+/* ---------- Editor ---------- */
+.detail {
+  padding-bottom: 100px;
+  /* The zoomed parallax photo must not widen the page (mobile would zoom out). */
+  overflow-x: clip;
 }
-.promptbar.busy {
-  border-color: var(--acid);
-  box-shadow: var(--glow-acid);
-  animation: flicker 1.2s infinite;
+.editor {
+  padding-top: max(14px, env(safe-area-inset-top));
 }
-.promptbar textarea {
-  flex: 1;
-  min-width: 0;
-  max-height: 120px;
-  padding: 11px 4px;
-  border: 0;
-  outline: 0;
-  resize: none;
-  background: transparent;
-  color: var(--ink);
-  caret-color: var(--cyan);
-  font: inherit;
-  font-size: 16px;
-  field-sizing: content;
+.editor-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
 }
-.promptbar textarea::placeholder {
-  color: var(--ink-soft);
-}
-.icon-btn {
-  flex: 0 0 44px;
-  height: 44px;
-  border: 0;
-  border-radius: var(--radius);
-  background: transparent;
+.editor-head h2 {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
   font-size: 20px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
-.icon-btn.listening {
-  background: rgba(255, 43, 214, 0.25);
-  box-shadow: var(--glow-pink);
-  animation: pulse 1s ease-in-out infinite;
+.back-btn.static {
+  position: static;
+  flex: 0 0 auto;
 }
-@keyframes pulse {
-  50% { transform: scale(1.1); }
-}
-.send-btn {
-  flex: 0 0 44px;
-  height: 44px;
-  border: 1px solid var(--cyan);
-  border-radius: var(--radius);
-  background: rgba(0, 240, 255, 0.15);
-  box-shadow: var(--glow-cyan);
-  color: var(--cyan);
-  font-size: 18px;
-  font-weight: 700;
-  text-shadow: 0 0 6px var(--cyan);
-}
-.send-btn:disabled {
-  border-color: var(--line);
-  background: transparent;
-  box-shadow: none;
-  color: var(--ink-soft);
-  text-shadow: none;
-}
-.prompt-photo {
-  pointer-events: auto;
+.editor-photo {
   position: relative;
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 10px max(0px, calc((100% - 720px) / 2));
-  border: 1px solid var(--cyan);
-  border-radius: 2px;
-  box-shadow: var(--glow-cyan);
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 1px dashed var(--cyan);
+  border-radius: var(--radius);
+  clip-path: var(--notch);
+  overflow: hidden;
+  color: var(--cyan);
 }
-.prompt-photo img {
+.editor-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.prompt-photo button {
+.editor-photo-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px var(--cyan);
+}
+.editor-photo-icon {
+  font-size: 48px;
+}
+.editor-photo-change {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--pink);
-  border-radius: 2px;
-  background: var(--bg);
-  box-shadow: var(--glow-pink);
-  color: var(--pink);
+  right: 10px;
+  bottom: 10px;
+  padding: 4px 10px;
+  border: 1px solid var(--cyan);
+  background: rgba(7, 6, 13, 0.8);
   font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.editor .field {
+  margin-top: 18px;
+}
+.field textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--ink);
+  caret-color: var(--cyan);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  resize: vertical;
+}
+.field textarea:focus {
+  outline: 0;
+  border-color: var(--cyan);
+  box-shadow: var(--glow-cyan);
+}
+.link-btn {
+  display: block;
+  margin: 10px auto 0;
+  padding: 8px;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+.link-btn.danger {
+  margin-top: 24px;
+  color: var(--pink);
+}
+.rating-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.rating-input-chip {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 34px;
+  line-height: 48px;
+}
+.rating-input-chip .rating-chip-fg {
+  text-align: left;
+}
+.rating-input-value {
+  margin-left: 6px;
+  min-width: 36px;
+  color: var(--acid);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  text-shadow: var(--glow-acid);
 }
 
 /* ---------- Toast ---------- */

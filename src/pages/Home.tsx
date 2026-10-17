@@ -1,7 +1,8 @@
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo, useState } from 'react'
 import { db } from '../db'
+import { navigate } from '../router'
 import { filterSnacks, type Filters } from '../search'
 import { SearchBar } from '../components/SearchBar'
 import { SnackCard } from '../components/SnackCard'
@@ -30,7 +31,7 @@ export function Home({ onOpenSettings }: { onOpenSettings: () => void }) {
       {snacks && snacks.length === 0 && (
         <div className="empty">
           <div className="empty-emoji">🍿</div>
-          <p>No snacks yet! Tell me what you just ate, down there 👇</p>
+          <p>No snacks yet! Tap + to log your first one.</p>
         </div>
       )}
       {snacks && snacks.length > 0 && list.length === 0 && (
@@ -46,6 +47,17 @@ export function Home({ onOpenSettings }: { onOpenSettings: () => void }) {
           ))}
         </AnimatePresence>
       </div>
+      <motion.button
+        className="fab"
+        aria-label="Add snack"
+        onClick={() => navigate('/new')}
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 14, delay: 0.3 }}
+        whileTap={{ scale: 0.85, rotate: 90 }}
+      >
+        +
+      </motion.button>
     </div>
   )
 }

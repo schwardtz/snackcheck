@@ -3,7 +3,7 @@ import { useFxEnabled } from './fxEnabled'
 
 const EMOJI = ['🥔', '🍟', '🥨', '🍿', '🍪', '🧀', '🍬', '🌶️']
 const IDLE_COUNT = 14
-const INTERACTIVE = 'button, a, input, textarea, label, .card, .sheet, .promptbar-wrap, .toast, .detail-sheet'
+const INTERACTIVE = 'button, a, input, textarea, label, .card, .sheet, .bottom-bar, .toast, .detail-sheet'
 
 interface Particle {
   x: number

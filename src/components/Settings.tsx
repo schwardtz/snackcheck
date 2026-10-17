@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
-import { useRef, useState } from 'react'
-import { getApiKey, setApiKey } from '../apiKey'
+import { useRef } from 'react'
 import { exportSnacks, importSnacks } from '../backup'
 import { setFxEnabled, useFxEnabled } from '../fx/fxEnabled'
 
@@ -10,7 +9,6 @@ interface Props {
 }
 
 export function Settings({ onClose, onMessage }: Props) {
-  const [key, setKey] = useState(getApiKey)
   const fx = useFxEnabled()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -30,22 +28,6 @@ export function Settings({ onClose, onMessage }: Props) {
       >
         <div className="sheet-handle" />
         <h3>⚙️ Settings</h3>
-
-        <label className="field">
-          <span>Anthropic API key</span>
-          <input
-            type="password"
-            autoComplete="off"
-            placeholder="sk-ant-…"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            onBlur={() => setApiKey(key)}
-          />
-          <small>
-            Only stored on this phone and sent straight to Anthropic. Get one at{' '}
-            <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>.
-          </small>
-        </label>
 
         <label className="toggle-row">
           <span>✨ Flying chips & effects</span>
@@ -81,12 +63,9 @@ export function Settings({ onClose, onMessage }: Props) {
 
         <button
           className="pill on wide"
-          onClick={() => {
-            setApiKey(key)
-            onClose()
-          }}
+          onClick={onClose}
         >
-          Save & close
+          Close
         </button>
       </motion.div>
     </motion.div>
