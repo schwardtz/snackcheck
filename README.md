@@ -6,7 +6,7 @@ A quirky snack diary for your phone. Snap a snack, tell it what you think, and f
 
 ## How it works
 
-Tap **+** to log a snack: snap a photo, give it a name, tap the chips to rate it (tap the left half of a chip
+Tap **+** to log a snack: snap a photo (then drag the corners to crop away the surroundings), give it a name, tap the chips to rate it (tap the left half of a chip
 for a half rating), jot down taste notes and pick a few taste tags. Tap **Edit** on any snack to change it.
 
 Search is fuzzy across names, brands, tags and notes, with filters for category and taste tags.

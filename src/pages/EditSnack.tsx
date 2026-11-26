@@ -1,10 +1,11 @@
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { CATEGORIES, CATEGORY_EMOJI, TASTE_TAGS, db, deleteSnack, saveSnack, type Snack } from '../db'
-import { processPhoto } from '../image'
+import { FULL_CROP, processPhoto, type CropRect } from '../image'
 import { back, replace } from '../router'
 import { useBlobUrl } from '../useBlobUrl'
 import { RatingInput } from '../components/RatingInput'
+import { PhotoCropper } from '../components/PhotoCropper'
 import { snackBurst } from '../fx/burst'
 import { COUNTRIES, countryFlag, countryName } from '../countries'
 
@@ -23,6 +24,10 @@ export function EditSnack({ id, onMessage }: Props) {
   const [photo, setPhoto] = useState<Blob | null>(null)
   const [photoChanged, setPhotoChanged] = useState(false)
   const [processing, setProcessing] = useState(false)
+  // The uncropped picture and its current crop, so re-cropping can widen the frame again.
+  const [source, setSource] = useState<{ image: Blob; crop: CropRect }>()
+  // What the crop screen is showing; cancelling a fresh pick keeps the old photo.
+  const [cropping, setCropping] = useState<{ image: Blob; crop: CropRect; fresh: boolean }>()
   const [usedCountries, setUsedCountries] = useState<string[]>([])
   const cameraRef = useRef<HTMLInputElement>(null)
   const galleryRef = useRef<HTMLInputElement>(null)
@@ -55,19 +60,29 @@ export function EditSnack({ id, onMessage }: Props) {
   const toggleTag = (t: string) =>
     setSnack((prev) => prev && { ...prev, tags: prev.tags.includes(t) ? prev.tags.filter((x) => x !== t) : [...prev.tags, t] })
 
-  async function pickPhoto(file?: File) {
-    if (!file) return
+  function pickPhoto(file?: File) {
+    if (file) setCropping({ image: file, crop: FULL_CROP, fresh: true })
+  }
+
+  async function applyCrop(image: Blob, crop: CropRect) {
+    setCropping(undefined)
     setProcessing(true)
     try {
-      const { photo, thumb } = await processPhoto(file)
+      const { photo, thumb } = await processPhoto(image, crop)
       setPhoto(photo)
       setPhotoChanged(true)
+      setSource({ image, crop })
       set({ thumb })
     } catch {
       onMessage("Couldn't read that photo 🙈")
     } finally {
       setProcessing(false)
     }
+  }
+
+  function cropAgain() {
+    if (source) setCropping({ ...source, fresh: false })
+    else if (photo) setCropping({ image: photo, crop: FULL_CROP, fresh: false })
   }
 
   async function save() {
@@ -135,10 +150,16 @@ export function EditSnack({ id, onMessage }: Props) {
           🖼️ Choose from gallery
         </button>
         {photoUrl && (
+          <button type="button" className="link-btn" onClick={cropAgain} disabled={processing}>
+            ✂️ Crop
+          </button>
+        )}
+        {photoUrl && (
           <button
             type="button"
             className="link-btn"
             onClick={() => {
+              setSource(undefined)
               setPhoto(null)
               setPhotoChanged(true)
               set({ thumb: undefined })
@@ -247,6 +268,23 @@ export function EditSnack({ id, onMessage }: Props) {
           {isNew ? 'Log snack' : 'Save'}
         </motion.button>
       </div>
+
+      <AnimatePresence>
+        {cropping && (
+          <PhotoCropper
+            key="cropper"
+            image={cropping.image}
+            initial={cropping.crop}
+            onDone={(crop) => {
+              const same = Object.entries(crop).every(([k, v]) => Math.abs(v - cropping.crop[k as keyof CropRect]) < 1e-4)
+              // Re-saving an unchanged crop would only re-compress the photo.
+              if (!cropping.fresh && same) setCropping(undefined)
+              else applyCrop(cropping.image, crop)
+            }}
+            onCancel={() => setCropping(undefined)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
