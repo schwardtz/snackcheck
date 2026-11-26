@@ -737,7 +737,8 @@ button {
 .editor-photo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* Show the whole photo so you can see exactly what the crop kept. */
+  object-fit: contain;
 }
 .editor-photo-empty {
   display: flex;
@@ -1086,4 +1087,130 @@ button {
 .viewer3d-actions .pill {
   padding: 10px 18px;
   font-size: 14px;
+}
+
+/* ---------- Photo cropper ---------- */
+.cropper {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+.cropper-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: max(14px, env(safe-area-inset-top)) 16px 0;
+}
+.cropper-head h2 {
+  margin: 0;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+}
+.cropper-head .pill {
+  padding: 9px 14px;
+}
+.cropper-head .pill:disabled {
+  opacity: 0.4;
+}
+.cropper-tip {
+  margin: 10px 16px 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  text-align: center;
+}
+.cropper-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px 24px;
+}
+.cropper-frame {
+  position: relative;
+  touch-action: none; /* drags crop instead of scrolling or zooming the page */
+  user-select: none;
+  -webkit-user-select: none;
+  line-height: 0;
+}
+.cropper-frame img {
+  display: block;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100dvh - 230px);
+  pointer-events: none;
+}
+.cropper-box {
+  position: absolute;
+  border: 2px solid var(--cyan);
+  box-shadow: var(--glow-cyan);
+  cursor: move;
+}
+.cropper-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cropper-shade {
+  position: absolute;
+  /* Dim everything outside the crop. */
+  box-shadow: 0 0 0 9999px rgba(7, 6, 13, 0.7);
+}
+.cropper-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent calc(33.33% - 0.5px), rgba(255, 255, 255, 0.35) 0 calc(33.33% + 0.5px), transparent 0 calc(66.66% - 0.5px), rgba(255, 255, 255, 0.35) 0 calc(66.66% + 0.5px), transparent 0),
+    linear-gradient(transparent calc(33.33% - 0.5px), rgba(255, 255, 255, 0.35) 0 calc(33.33% + 0.5px), transparent 0 calc(66.66% - 0.5px), rgba(255, 255, 255, 0.35) 0 calc(66.66% + 0.5px), transparent 0);
+}
+/* Big invisible touch targets with a small visible marker inside. */
+.cropper-handle {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  touch-action: none;
+}
+.cropper-handle::after {
+  content: '';
+  position: absolute;
+  inset: 11px;
+  border: 2px solid #fff;
+  border-radius: 2px;
+  background: var(--cyan);
+  box-shadow: var(--glow-cyan);
+}
+.cropper-handle.n,
+.cropper-handle.s {
+  left: 50%;
+  cursor: ns-resize;
+}
+.cropper-handle.e,
+.cropper-handle.w {
+  top: 50%;
+  cursor: ew-resize;
+}
+.cropper-handle.n::after,
+.cropper-handle.s::after {
+  inset: 14px 8px;
+}
+.cropper-handle.e::after,
+.cropper-handle.w::after {
+  inset: 8px 14px;
+}
+.cropper-handle.nw, .cropper-handle.n, .cropper-handle.ne { top: 0; }
+.cropper-handle.sw, .cropper-handle.s, .cropper-handle.se { top: 100%; }
+.cropper-handle.nw, .cropper-handle.w, .cropper-handle.sw { left: 0; }
+.cropper-handle.ne, .cropper-handle.e, .cropper-handle.se { left: 100%; }
+.cropper-handle.nw, .cropper-handle.se { cursor: nwse-resize; }
+.cropper-handle.ne, .cropper-handle.sw { cursor: nesw-resize; }
+.cropper-actions {
+  padding: 0 16px max(16px, env(safe-area-inset-bottom));
 }
