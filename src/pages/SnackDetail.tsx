@@ -29,6 +29,14 @@ export function SnackDetail({ id }: { id: number }) {
   return (
     <motion.div className="page detail" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}>
       <button className="back-btn" onClick={() => back('/')} aria-label="Back">←</button>
+      <motion.button
+        className="view3d-btn"
+        whileTap={{ scale: 0.9 }}
+        onClick={() => navigate(`/snack/${snack.id}/3d`)}
+        aria-label="View in 3D"
+      >
+        3D
+      </motion.button>
       <motion.div className={`detail-photo cat-${snack.category}`} style={{ scale: photoScale, y: photoY, opacity: photoOpacity }}>
         {photo ? <img src={photo} alt={snack.name} /> : <span className="detail-emoji" aria-hidden>{CATEGORY_EMOJI[snack.category]}</span>}
       </motion.div>

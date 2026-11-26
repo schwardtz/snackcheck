@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { db, requestPersistentStorage, seedIfFirstRun } from './db'
 import { EMPTY_FILTERS, type Filters } from './search'
 import { useRoute, navigate, back } from './router'
@@ -12,6 +12,9 @@ import { Toast, type ToastData } from './components/Toast'
 import { ChipRain } from './fx/ChipRain'
 import { snackBurst } from './fx/burst'
 import { useShake } from './fx/useShake'
+
+// three.js is big, so the 3D viewer only loads when someone opens it.
+const Snack3D = lazy(() => import('./pages/Snack3D'))
 
 export default function App() {
   const route = useRoute()
@@ -65,6 +68,11 @@ export default function App() {
         />
       )}
       {route.name === 'snack' && <SnackDetail key={route.id} id={route.id} />}
+      {route.name === 'snack3d' && (
+        <Suspense fallback={<div className="viewer3d viewer3d-loading">Booting hologram…</div>}>
+          <Snack3D key={route.id} id={route.id} />
+        </Suspense>
+      )}
       {route.name === 'new' && <EditSnack key="new" onMessage={showToast} />}
       {route.name === 'edit' && <EditSnack key={route.id} id={route.id} onMessage={showToast} />}
       <Toast toast={toast} onClose={() => setToast(null)} />
