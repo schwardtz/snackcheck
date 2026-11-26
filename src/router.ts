@@ -7,13 +7,17 @@ export type Route =
   | { name: 'brands' }
   | { name: 'snack'; id: number }
   | { name: 'edit'; id: number }
+  | { name: 'snack3d'; id: number }
 
 function parse(hash: string): Route {
   if (hash.startsWith('#/new')) return { name: 'new' }
   if (hash.startsWith('#/brands')) return { name: 'brands' }
-  const m = hash.match(/^#\/snack\/(\d+)(\/edit)?/)
+  const m = hash.match(/^#\/snack\/(\d+)(\/edit|\/3d)?/)
   if (!m) return { name: 'home' }
-  return m[2] ? { name: 'edit', id: Number(m[1]) } : { name: 'snack', id: Number(m[1]) }
+  const id = Number(m[1])
+  if (m[2] === '/edit') return { name: 'edit', id }
+  if (m[2] === '/3d') return { name: 'snack3d', id }
+  return { name: 'snack', id }
 }
 
 const ROUTE_EVENT = 'snackcheck:route'

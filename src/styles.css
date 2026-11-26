@@ -992,3 +992,98 @@ button {
     transition: none !important;
   }
 }
+
+/* ---------- 3D viewer ---------- */
+.view3d-btn {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  z-index: 6;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--acid);
+  border-radius: var(--radius);
+  background: rgba(7, 6, 13, 0.8);
+  box-shadow: var(--glow-acid);
+  color: var(--acid);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 6px var(--acid);
+}
+.viewer3d {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at 50% 35%, #2a0d4a 0%, transparent 70%), var(--bg);
+}
+.viewer3d-loading {
+  display: grid;
+  place-items: center;
+  color: var(--cyan);
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.12em;
+  text-shadow: var(--glow-cyan);
+}
+.viewer3d-title {
+  margin: 0;
+  padding: max(22px, calc(env(safe-area-inset-top) + 8px)) 72px 0;
+  font-family: 'Orbitron', 'Chakra Petch', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 43, 214, 0.6);
+  overflow-wrap: anywhere;
+}
+.viewer3d-canvas {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: block;
+  touch-action: none; /* drags rotate the snack instead of scrolling */
+  cursor: grab;
+}
+.viewer3d-canvas:active {
+  cursor: grabbing;
+}
+.viewer3d-error {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 0 24px;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.viewer3d-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 70px);
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(7, 6, 13, 0.8);
+  color: var(--ink-soft);
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: hint-fade 4s ease-in forwards;
+}
+@keyframes hint-fade {
+  0%, 75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.viewer3d-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px max(16px, env(safe-area-inset-bottom));
+}
+.viewer3d-actions .pill {
+  padding: 10px 18px;
+  font-size: 14px;
+}
